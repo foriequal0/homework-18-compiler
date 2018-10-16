@@ -35,14 +35,15 @@ id *enter(int tokenType, const char *name, int length) {
 
   /* Find existing entry, and exit early if it is found */
   for(nlist* entry = hashTable[h];entry; entry=entry->next) {
-    if (strncmp(entry->data->name, name, length) == 0) {
+    if (strncmp(entry->data->name, name, length+1) == 0) {
       return entry->data;
     }
   }
 
   id* data = (id*)malloc(sizeof(id));
-  char *name_copy = (char*)malloc(strnlen(name, length)+1);
-  data->name = strncpy(name_copy, name, length);
+  char *name_copy = (char*)calloc(1, strnlen(name, length)+1);
+  data->name = strncpy(name_copy, name, length+1);
+  data->name[length] = 0;
   data->tokenType = tokenType;
   data->count = 0;
 
