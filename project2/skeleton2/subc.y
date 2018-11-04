@@ -177,21 +177,24 @@ binary
     | unary { REDUCE("binary->unary"); }
     ;
 unary
+    : '-' unary %prec UMINUS { REDUCE("unary->'-' unary"); }
+    | '!' unary { REDUCE("unary->'!' unary"); }
+    | '&' unary %prec UAMP { REDUCE("unary->'&' unary"); }
+    | '*' unary %prec UAST { REDUCE("unary->'*' unary"); } // The type of unary is pointer.
+    | unary0
+    ;
+unary0
     : '(' expr ')' { REDUCE("unary->'(' expr ')'"); }
+    | unary0 '[' expr ']' { REDUCE("unary->unary '[' expr ']'"); } // The type of expr is integer.
+    | unary0 '(' args ')' { REDUCE("unary->unary '(' args ')'"); } // The type of unary is a function.
+    | unary0 '(' ')' { REDUCE("unary->unary '(' ')'"); }
+    | unary0 PLUS_PLUS { REDUCE("unary->unary PLUS_PLUS"); }
+    | unary0 MINUS_MINUS { REDUCE("unary->unary MINUS_MINUS"); }
+    | unary0 STRUCTOP ID { REDUCE("unary->unary STRUCTOP ID"); } // The type of unary is a struct. 
     | INTEGER_CONST { REDUCE("unary->INTEGER_CONST"); }
     | CHAR_CONST { REDUCE("unary->CHAR_CONST"); }
     | ID { REDUCE("unary->ID"); }
     | STRING { REDUCE("unary->STRING"); }
-    | '-' unary { REDUCE("unary->'-' unary"); }
-    | '!' unary { REDUCE("unary->'!' unary"); }
-    | unary PLUS_PLUS { REDUCE("unary->unary PLUS_PLUS"); }
-    | unary MINUS_MINUS { REDUCE("unary->unary MINUS_MINUS"); }
-    | '&' unary { REDUCE("unary->'&' unary"); }
-    | '*' unary { REDUCE("unary->'*' unary"); } // The type of unary is pointer.
-    | unary '[' expr ']' { REDUCE("unary->unary '[' expr ']'"); } // The type of expr is integer.
-    | unary STRUCTOP ID { REDUCE("unary->unary STRUCTOP ID"); } // The type of unary is a struct. 
-    | unary '(' args ')' { REDUCE("unary->unary '(' args ')'"); } // The type of unary is a function.
-    | unary '(' ')' { REDUCE("unary->unary '(' ')'"); }
     ;
 args
     : expr { REDUCE("args->expr"); }
