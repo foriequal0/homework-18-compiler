@@ -4,7 +4,8 @@
  *      This is an implementation file for the open hash table.
  *
  ****************************************************************/
-
+#include <stdlib.h>
+#include <string.h>
 #include "subc.h"
 
 #define  HASH_TABLE_SIZE   101
@@ -16,15 +17,40 @@ struct nlist {
 
 static struct nlist *hashTable[HASH_TABLE_SIZE];
 
-unsigned hash(char *name) {
-   /* implementation is given here */
+unsigned hash(const char *name) {
+  unsigned h = 0;
+  for(const char *p = name; *p; p++) {
+    h = (h * 31) + *p;
+  }
+  return h;
 }
 
-struct id *enter(int lextype, char *name, int length) {
-   /* implementation is given here */
+struct id *enter(int lextype, const char *name) {
+  unsigned h = hash(name) % HASH_TABLE_SIZE;
+
+  struct id* existing = lookup(name);
+  if (existing) {
+    return existing;
+  }
+
+  struct id* data = (struct id*) calloc(1, sizeof(struct id));
+  data->name = strdup(name);
+  data->lextype = lextype;
+
+  struct nlist* entry = (struct nlist*) malloc(sizeof(struct nlist));
+  entry->data = data;
+  entry->next = hashTable[h];
+  hashTable[h] = entry;
+  return data;
 }
 
-struct id *lookup(char *name) {
-   /* implementation is given here */
+struct id *lookup(const char *name) {
+  unsigned h = hash(name) % HASH_TABLE_SIZE;
+  for (struct nlist* entry = hashTable[h]; entry; entry = entry->next) {
+    if (strcmp(entry->data->name, name) == 0) {
+      return entry->data;
+    }
+  }
+  return NULL;
 }
 

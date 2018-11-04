@@ -17,9 +17,9 @@ struct id {
 };
 
 /* For hash table */
-unsigned hash(char *name);
-struct id *enter(int lextype, char *name, int length);
-struct id *lookup(char *name);
+unsigned hash(const char *name);
+struct id *enter(int lextype, const char *name);
+struct id *lookup(const char *name);
 
 int read_line();
 
