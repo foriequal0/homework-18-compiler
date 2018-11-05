@@ -19,6 +19,8 @@ void      REDUCE(char* s);
 }
 
 /* Precedences and Associativities */
+/* THEN is non operator precedence for resolve if-else ambiguous syntax
+ * https://www.gnu.org/software/bison/manual/html_node/Non-Operators.html#Non-Operators */
 %right                  THEN ELSE
 %left                   ','
 %right                  ASSIGNOP '='
@@ -184,6 +186,7 @@ unary
     | '*' unary %prec UAST { REDUCE("unary->'*' unary"); } // The type of unary is pointer.
     | unary0
     ;
+// postfix-ish operators precedences are higher than prefix operators.
 unary0
     : '(' expr ')' { REDUCE("unary->'(' expr ')'"); }
     | unary0 '[' expr ']' { REDUCE("unary->unary '[' expr ']'"); } // The type of expr is integer.

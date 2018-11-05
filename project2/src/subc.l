@@ -84,6 +84,7 @@ int read_line()
 
 int main(int argc, char* argv[])
 {
+    /* populate keyword hash with keyword token type */
    struct keyword {
        int type;
        const char* text;

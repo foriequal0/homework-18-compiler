@@ -17,6 +17,8 @@ struct nlist {
 
 static struct nlist *hashTable[HASH_TABLE_SIZE];
 
+/* Java string hash algorithm
+ * sum i=0..n (s[i] * 31 ^ (n-1-i)) */
 unsigned hash(const char *name) {
   unsigned h = 0;
   for(const char *p = name; *p; p++) {
@@ -28,13 +30,14 @@ unsigned hash(const char *name) {
 struct id *enter(int lextype, const char *name) {
   unsigned h = hash(name) % HASH_TABLE_SIZE;
 
+  /* Find existing entry, and exit early if it is found */
   struct id* existing = lookup(name);
   if (existing) {
     return existing;
   }
 
   struct id* data = (struct id*) calloc(1, sizeof(struct id));
-  data->name = strdup(name);
+  data->name = strdup(name); // copy yytext because it is modified while parsing.
   data->lextype = lextype;
 
   struct nlist* entry = (struct nlist*) malloc(sizeof(struct nlist));
