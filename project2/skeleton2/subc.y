@@ -19,6 +19,7 @@ void      REDUCE(char* s);
 }
 
 /* Precedences and Associativities */
+%right                  THEN ELSE
 %left                   ','
 %right                  ASSIGNOP '='
 %left                   LOGICAL_OR
@@ -130,7 +131,7 @@ stmt
     | RETURN ';' { REDUCE("stmt->RETURN ';'"); }
     | RETURN expr ';' { REDUCE("stmt->RETURN expr ';'"); }
     | ';' { REDUCE("stmt->';'"); }
-    | IF '(' test ')' stmt { REDUCE("stmt->IF '(' test ')' stmt"); }
+    | IF '(' test ')' stmt %prec THEN { REDUCE("stmt->IF '(' test ')' stmt"); }
     | IF '(' test ')' stmt ELSE stmt { REDUCE("stmt->IF '(' test ')' stmt ELSE stmt"); }
     | WHILE '(' test ')' stmt { REDUCE("stmt->WHILE '(' test ')' stmt"); }
     | FOR '(' opt_expr ';' test ';' opt_expr ')' stmt { REDUCE("stmt->FOR '(' opt_expr ';' test ';' opt_expr ')' stmt"); }
