@@ -4,10 +4,13 @@
  * Description : a skeleton flex input
  */
 
+#include <stdarg.h>
 #include "subc.h"
 #include "subc.tab.h"
+
 static int comment_depth = 0;
 static int lineno = 1;
+static const char *filename = NULL;
 
 %}
 
@@ -22,11 +25,8 @@ special-char	\\[nt]
 
 %x COMMENT
 %%
-"int" 	|
-"char"	{ return TYPE; }
-"struct" 	{ return STRUCT;}
 {id}	{
-		   struct id *entered  = enter(ID, yytext, yyleng);
+		   struct id *entered  = enter(ID, yytext);
 		   yylval.stringVal = entered->name;
 		   return entered->lextype;
 		}
@@ -44,8 +44,20 @@ special-char	\\[nt]
 		   yylval.stringVal = yytext;
 		   return CHAR_CONST;
 		}
-","		{ return ','; }
-";"		{ return yytext[0]; }
+"||" { return LOGICAL_OR; }
+"&&" { return LOGICAL_AND; }
+"<"|"<="|">"|">=" {
+    yylval.stringVal = yytext;
+    return RELOP;
+}
+"=="|"!=" {
+    yylval.stringVal = yytext;
+    return EQUOP;
+}
+"++" { return INCOP; }
+"--" { return DECOP; }
+"->"  { return STRUCTOP; }
+"."|","|";"|"("|")"|"["|"]"|"{"|"}"|"="|"|"|"&"|"-"|"+"|"%"|"/"|"*"|"!" { return yytext[0]; }
 
 {white-space}
 <*>\n		   ++lineno;
@@ -59,26 +71,45 @@ special-char	\\[nt]
 
 %%
 
-int read_line()
+void print_error(const char* fmt, ...)
 {
-   return lineno;
+   char extended_fmt[1024];
+	sprintf(extended_fmt, "%s:%d: error:%s\n", filename, lineno, fmt);
+	va_list args;
+   va_start(args, fmt);
+   vprintf(extended_fmt, args);
+   va_end(args);
 }
    
 int main(int argc, char* argv[])
 {
-   static char *keyword[] = { "int", NULL };
-   static int tokentype[] = { TYPE, 0 };
-   int i;
-   for(i = 0; keyword[i] != NULL; i++)
-      enter(tokentype[i], keyword[i], strlen(keyword[i]));
+   /* populate keyword hash with keyword token type */
+   struct keyword {
+       int type;
+       const char* text;
+   };
+   static const struct keyword keywords[] = {
+       {TYPE, "int"}, {TYPE, "char"}, {VOID, "void"}, {STRUCT, "struct"}, 
+       {RETURN, "return"}, {IF, "if"}, {ELSE, "else"}, {WHILE, "while"},
+       {FOR, "for"}, {BREAK, "break"}, {CONTINUE, "continue"}, {NULLPTR, "NULL"}, 
+       {0, NULL}
+   };
+   for(int i = 0; keywords[i].text; i++)
+       enter(keywords[i].type, keywords[i].text);
 
-   if(argc >= 2) yyin = fopen(argv[1], "r");
-   else yyin = stdin;
+   if(argc >= 2) {
+		yyin = fopen(argv[1], "r");
+		filename = argv[1];
+	}
+   else {
+		yyin = stdin;
+		filename = "stdin";
+	}
    if(!yyin) {
       printf("Can't open input stream!\n");
       exit(1);
    }
-	
+   //yydebug=1;
    yyparse();
    fclose(yyin);
    return 0;
