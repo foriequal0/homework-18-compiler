@@ -5,7 +5,10 @@ int main(void) {
 	int *b;
 	char c[20];
 	char *d;
-
+	a == NULL; /* error */
+	b == NULL;
+	c == NULL;
+	d == NULL;
 	a = b;		/* error */
 	a[0] = 0;
 	c[5] = 'a';
@@ -15,14 +18,14 @@ int main(void) {
 	b = &b;		/* error */
 	b = &*(a+5);/* error */
 	b = &(b++);	/* error */
-	b = &*(b++);
+	b = &*(b++); /* error */
 
 	d = b;		/* error */
-	d = c;
+	d = c; 
 
 	c[1] = a[2]; /* error */
 	d = &(++d); /* error */
-	d = &*(++d);
+	d = &*(++d); /* error */
 
 	if (b < d) { /* error */
 		return -1;

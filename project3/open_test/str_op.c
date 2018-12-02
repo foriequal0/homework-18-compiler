@@ -19,8 +19,6 @@ struct str3 { /* error, redeclaration of struct str3 */
 	char *c;
 };
 
-
-
 int main(void) {
 	int i1;
 	char c1;

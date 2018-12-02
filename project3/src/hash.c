@@ -57,4 +57,3 @@ struct id *lookup(const char *name) {
   }
   return NULL;
 }
-

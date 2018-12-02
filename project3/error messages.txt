@@ -1,0 +1,58 @@
+Project3 error message
+error message format
+filename:line_num: error:error_message
+
+kinds of error message
+variable이나 function이 선언되지 않고 사용될 때
+not declared
+
+variable이 같은 scope안에서 재정의 될 때, struct나 function이 재정의될때
+redeclaration
+
+assign시 LHS와 RHS의 type이 다를 때
+LHS and RHS are not same type
+
+assign시 LHS가 variable이 아닐 때
+LHS is not a variable
+
+assign시 RHS가 const나 variable이 아닐 때
+RHS is not a const or variable
+
+Struct operation을 struct가 아닌 variable에 사용할 때
+variable is not struct
+
+Struct가 가지지 않은 field에 접근할 때
+struct not have same name field
+
+Struct가 불완전하게 선언될 때
+incomplete type error
+
+함수의 return type과 실제 return값이 다를 때
+return value is not return type
+
+두 variable이 비교가 불가능할 때
+not comparable
+
+variable이 올 자리에 variable이 안 올 때
+not variable
+
+variable이나 const가 올 자리야 다른 것이 올 때
+not const or variable
+
+해당 type이 올 자리에 다른 type이 올 때
+not 해당 type
+ex)
+int type이 올 자리에 다른 type이 올 때
+not int type
+
+함수가 아닌데 call을 할 때
+not a function
+
+함수의 formal parameter와 actual parameter가 다를 때
+actual args are not equal to formal args
+
+추가:
+pointer가 올 자리에 다른 variable이 올 때 
+not a pointer
+Relop, Equop에서 int나 char type이 아닌 다른 것이 올 때
+not int or char type

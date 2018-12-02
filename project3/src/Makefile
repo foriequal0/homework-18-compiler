@@ -5,8 +5,8 @@
 CC = gcc
 LEX = flex
 YACC = bison
-COMPILE_OPTION = -g -Wall -Wextra -fsanitize=undefined -fsanitize=address
-LINK_OPTION = -lfl -g -Wall -Wextra -fsanitize=undefined -fsanitize=address
+COMPILE_OPTION = -g -Wall -Wextra -fsanitize=undefined
+LINK_OPTION = -lfl -g -Wall -Wextra -fsanitize=undefined
 YACC_OPTION = -vd
 
 all : subc

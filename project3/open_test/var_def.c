@@ -1,6 +1,4 @@
-/* variable redefine */
 int a;
-
 
 int main() {
     int a;
