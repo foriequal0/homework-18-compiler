@@ -6,12 +6,14 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "subc.h"
 #include "subc.tab.h"
 
 static int comment_depth = 0;
 static int lineno = 1;
 static const char *filename = NULL;
+static FILE* fout;
 
 void init_type();
 %}
@@ -48,17 +50,25 @@ special-char	\\[nt]
 }
 '({special-char}|[^\\'\n])'	{
    /* Character Variable */
-   yylval.ch = yytext[0];
+   if (yytext[0] == '\\') {
+      switch(yytext[1]) {
+      case 'n': yylval.ch = '\n'; break;
+      case 't': yylval.ch = '\t'; break;
+      default: assert(0);
+      }
+   } else {
+      yylval.ch = yytext[0];
+   }
    return CHAR_CONST;
 }
 "||" { return LOGICAL_OR; }
 "&&" { return LOGICAL_AND; }
 "<"|"<="|">"|">=" {
-    yylval.string = yytext;
+    yylval.string = enter(RELOP, yytext)->name;
     return RELOP;
 }
 "=="|"!=" {
-    yylval.string = yytext;
+    yylval.string = enter(EQUOP, yytext)->name;
     return EQUOP;
 }
 "++" { return INCOP; }
@@ -78,6 +88,35 @@ special-char	\\[nt]
 
 %%
 
+void print_command(const char* fmt, ...)
+{
+   /* prepare format */
+   char extended_fmt[1024];
+   sprintf(extended_fmt, "        %s\n", fmt);
+   /* prepare varags */
+   va_list args;
+   va_start(args, fmt);
+   vfprintf(fout, extended_fmt, args);
+   va_end(args);
+}
+
+void print_jump_label(struct label label)
+{
+   fprintf(fout, "%s:\n", formatLabel(label));
+}
+
+void print_data_label(struct label label, const char* fmt, ...)
+{
+   /* prepare format */
+   char extended_fmt[1024];
+	sprintf(extended_fmt, "%s. %s\n", formatLabel(label), fmt);
+   /* prepare varags */
+	va_list args;
+   va_start(args, fmt);
+   vfprintf(fout, extended_fmt, args);
+   va_end(args);
+}
+
 void print_error(const char* fmt, ...)
 {
    /* prepare format */
@@ -88,6 +127,7 @@ void print_error(const char* fmt, ...)
    va_start(args, fmt);
    vprintf(extended_fmt, args);
    va_end(args);
+   exit(-1);
 }
 
 int main(int argc, char* argv[])
@@ -107,20 +147,31 @@ int main(int argc, char* argv[])
        enter(keywords[i].type, keywords[i].text);
    }
    init_type();
-   if(argc >= 2) {
-		yyin = fopen(argv[1], "r");
-		filename = argv[1];
-	}
-   else {
+   if (argc == 1) {
 		yyin = stdin;
+      fout = stdout;
 		filename = "stdin";
-	}
+   } else if(argc == 2) {
+		yyin = fopen(argv[1], "r");
+      fout = stdout;
+		filename = argv[1];
+	} else if (argc >= 3) {
+      yyin = fopen(argv[1], "r");
+      fout = fopen(argv[2], "w");
+      filename = argv[1];
+   }
+
    if(!yyin) {
       printf("Can't open input stream!\n");
+      exit(1);
+   }
+   if(!fout) {
+      printf("Can't open output stream!\n");
       exit(1);
    }
    
    yyparse();
    fclose(yyin);
+   fclose(fout);
    return 0;
 }

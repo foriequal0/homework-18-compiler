@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <strings.h>
+#include "gen.h"
 
 /* structure for ID */
 struct id {
@@ -22,6 +23,10 @@ struct id *enter(int lextype, const char *name);
 struct id *lookup(const char *name);
 
 void print_error(const char *fmt, ...);
+
+void print_command(const char* fmt, ...);
+void print_jump_label(struct label label);
+void print_data_label(struct label label, const char* fmt, ...);
 
 #endif
 
